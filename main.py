@@ -55,13 +55,23 @@ class Prism():
         self.hear(newRegex, func)
 
 
-    def send_message(self, msg, room = None):
+    def send_message(self, msg, room=None):
         rooms = [room] if room is not None else self.rooms
 
         for room in rooms:
             self._xmpp.send_message(mto=room,
                                     mbody=msg,
                                     mtype='groupchat')
+
+
+    def change_subject(self, subject, room=None):
+        rooms = [room] if room is not None else self.rooms
+
+        for room in rooms:
+           self._xmpp.send_message(mto=room,
+                                   mbody='',
+                                   msubject=subject,
+                                   mtype='groupchat')
 
 
     def _start(self, event):
@@ -112,6 +122,11 @@ if __name__ == "__main__":
         bot.send_message('%s' % match.group(1), msg['from'].bare)
 
     prism.respond('ping (.*?)$', ping)
+
+    def subject(bot, msg, match):
+        bot.change_subject('%s' % match.group(1), msg['from'].bare)
+
+    prism.respond('set subject to (.*?)$', subject)
 
     prism.start((host, port))
 
