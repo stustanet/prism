@@ -144,18 +144,12 @@ if __name__ == "__main__":
 
     # starting
 
-    def customHandler(signum, stackframe):
-        prism.stop()
+    # def start_prism():
+    prism.start((host, port))
 
 
-    signal.signal(signal.SIGINT, customHandler)
-
-    def start_prism():
-        prism.start((host, port))
-
-
-    t = threading.Thread(target=start_prism)
-    t.start()
+    # t = threading.Thread(target=start_prism)
+    # t.start()
 
 
     pass
