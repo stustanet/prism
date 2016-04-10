@@ -1,5 +1,4 @@
 from threading import Timer
-from os import environ
 
 from urllib.request import urlopen
 import json
@@ -36,9 +35,7 @@ class GitLabBot():
         self.bot = bot
         self.all_projects = {}
 
-        self.PRIVATE_TOKEN = environ.get('PRISM_GITLAB_PRIVATE_TOKEN')
-        if self.PRIVATE_TOKEN is None:
-            raise ValueError('missing PRISM_GITLAB_PRIVATE_TOKEN env var')
+        self.PRIVATE_TOKEN = self.bot.config.GITLAB_PRIVATE_TOKEN
 
         for project in self.get_project_list():
             self.all_projects[project['id']] = project

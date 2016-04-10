@@ -1,7 +1,6 @@
 import sleekxmpp
 import re
 import traceback
-from os import environ
 
 import threading
 import signal
@@ -15,6 +14,8 @@ from listener import Listener
 class Prism():
     def __init__(self, jid, password, nick):
         self._xmpp = sleekxmpp.ClientXMPP(jid, password)
+
+        self.config = None
 
         self.rooms = []
         self.nick = nick
@@ -88,6 +89,7 @@ class Prism():
     def _start(self, event):
         self._xmpp.get_roster()
         self._xmpp.send_presence()
+
         for room in self.rooms:
             self._xmpp.plugin['xep_0045'].joinMUC(room,
                                                   self.nick,
@@ -109,25 +111,13 @@ class Prism():
 
 if __name__ == "__main__":
 
-    def get_env(env_name, default_value = None):
-        value = environ.get(env_name) or default_value
-        if env_name is None:
-            raise ValueError('%s env must be set' % env_name)
+    import config
 
-        return value
-
-
-    jid = get_env('PRISM_JID')
-    password = get_env('PRISM_PASSWORD')
-    alias = get_env('PRISM_NICK', 'prism')
-    rooms = get_env('PRISM_ROOMS')
-
-    host = get_env('PRISM_HOST')
-    port = get_env('PRISM_PORT', 5222)
-
-    prism = Prism(jid, password, alias)
-    for room in rooms.split(','):
+    prism = Prism(config.JID, config.PASSWORD, config.NICK)
+    for room in config.ROOMS:
         prism.join_muc(room)
+
+    prism.config = config
 
     # loading plugins
 
@@ -145,7 +135,7 @@ if __name__ == "__main__":
     # starting
 
     # def start_prism():
-    prism.start((host, port))
+    prism.start((config.HOST, config.PORT))
 
 
     # t = threading.Thread(target=start_prism)
