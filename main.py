@@ -3,6 +3,13 @@ import re
 import traceback
 from os import environ
 
+import threading
+import signal
+
+from os import listdir
+from os.path import isfile, join
+import importlib
+
 from listener import Listener
 
 class Prism():
@@ -30,6 +37,10 @@ class Prism():
             self._xmpp.process(block=True)
         else:
             print('Unable to connect')
+
+
+    def stop(self):
+        self._xmpp.disconnect(wait=True)
 
 
     def hear(self, regex, func):
@@ -118,16 +129,33 @@ if __name__ == "__main__":
     for room in rooms.split(','):
         prism.join_muc(room)
 
-    def ping(bot, msg, match):
-        bot.send_message('%s' % match.group(1), msg['from'].bare)
+    # loading plugins
 
-    prism.respond('ping (.*?)$', ping)
+    plugin_path = './plugins'
+    python_matcher = re.compile('([^\.]+)\.py', re.I)
+    plugin_files = [python_matcher.match(f).group(1)
+                        for f in listdir(plugin_path)
+                            if isfile(join(plugin_path, f))
+                                and python_matcher.match(f)]
 
-    def subject(bot, msg, match):
-        bot.change_subject('%s' % match.group(1), msg['from'].bare)
+    for plugin in plugin_files:
+        module = importlib.import_module('plugins.%s' % plugin)
+        module.register(prism)
 
-    prism.respond('set subject to (.*?)$', subject)
+    # starting
 
-    prism.start((host, port))
+    def customHandler(signum, stackframe):
+        prism.stop()
+
+
+    signal.signal(signal.SIGINT, customHandler)
+
+    def start_prism():
+        prism.start((host, port))
+
+
+    t = threading.Thread(target=start_prism)
+    t.start()
+
 
     pass
