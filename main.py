@@ -9,7 +9,11 @@ from os import listdir
 from os.path import isfile, join
 import importlib
 
+from sleekxmpp.xmlstream.handler.callback import Callback
+from sleekxmpp.xmlstream.matcher.xpath import MatchXPath
+
 from listener import Listener
+from listener import RespondListener
 
 class Prism():
     def __init__(self, jid, password, nick):
@@ -18,7 +22,7 @@ class Prism():
         self.config = None
 
         self.rooms = []
-        self.nick = nick
+        self.nicks = [ nick ]
         self.listener = []
 
         self._xmpp.add_event_handler('session_start', self._start)
@@ -27,6 +31,10 @@ class Prism():
         self._xmpp.register_plugin('xep_0030') # Service Discovery
         self._xmpp.register_plugin('xep_0045') # Multi-User Chat
         self._xmpp.register_plugin('xep_0199') # XMPP Ping
+
+
+    def get_nick(self):
+        return self.nicks[-1]
 
 
     def join_muc(self, muc):
@@ -49,22 +57,7 @@ class Prism():
 
 
     def respond(self, regex, func):
-        newRegex = re.compile('')
-        flags = re.UNICODE
-
-        if isinstance(regex, str):
-            newRegex = regex
-        elif isinstance(regex, newRegex):
-            newRegex = regex.pattern
-            flags = regex.flags
-        else:
-            raise TypeError('regex must be either str or regex')
-
-        newRegex = '(?:/|%s |@%s |%s: )%s'%(self.nick, self.nick, self.nick, regex)
-
-        newRegex = re.compile(newRegex, flags)
-
-        self.hear(newRegex, func)
+        self.listener.append(RespondListener(self, regex, func))
 
 
     def send_message(self, msg, room=None):
@@ -90,15 +83,34 @@ class Prism():
         self._xmpp.get_roster()
         self._xmpp.send_presence()
 
+        try:
+            xmpp = self._xmpp.plugin['xep_0045'].xmpp
+            xmpp.registerHandler(Callback('MUCError', MatchXPath("{%s}presence[@type='error']" % xmpp.default_ns), self._error))
+        except Exception as e:
+            print(e)
+            traceback.print_exc()
+            raise
+
+
+        self.join_mucs()
+
+
+    def join_mucs(self):
         for room in self.rooms:
             self._xmpp.plugin['xep_0045'].joinMUC(room,
-                                                  self.nick,
+                                                  self.get_nick(),
                                                   wait=True)
+
+
+    def leave_mucs(self):
+        for room in self.rooms:
+            self._xmpp.plugin['xep_0045'].leaveMUC(room,
+                                                  self.get_nick())
 
 
     def _muc_message(self, msg):
         try:
-            if msg['mucnick'] != self.nick:
+            if msg['mucnick'] != self.get_nick():
                 for listener in self.listener:
                     listener.call(msg)
 
@@ -106,6 +118,24 @@ class Prism():
             print(e)
             traceback.print_exc()
             raise
+
+
+    def _error(self, msg):
+          if msg['type'] != 'error': return
+          if msg['error'] is None: return
+          if msg['error']['type'] != 'cancel': return
+          if msg['error']['condition'] != 'conflict': return
+          try:
+
+              self.leave_mucs()
+
+              self.nicks.append(self.get_nick() + '.')
+
+              self.join_mucs()
+          except Exception as e:
+              print(e)
+              traceback.print_exc()
+              raise
 
 
 
