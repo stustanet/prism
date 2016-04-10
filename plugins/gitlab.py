@@ -150,7 +150,7 @@ class GitLabBot():
                 event_type = 'issue'
                 url = self.ISSUE_URL % (url, event['target_id'])
 
-            return '%s %s %s for %s: %s (%s)' % (author, title, action, event_type, name, url)
+            return '%s %s %s for %s: %s (%s)' % (author, action, event_type, title, name, url)
 
         elif action == 'created':
             return '%s created a new project %s (%s)' % (author, name, url)
