@@ -1,16 +1,35 @@
 def register(bot):
     def counter(bot, msg, match):
-        brackets = [ ('(',')'), ('[',']'), ('{','}'), ('<','>') ]
-        result = ''
+        brackets = {
+            '(':')', '[':']', '{':'}', '<':'>', '"':'"',
+            '“':'”', '‘':'’', '‹':'›', '«':'»',
+            '（':'）', '［':'］', '｛':'｝', '｟':'｠',
+            '⦅':'⦆', '〚':'〛', '⦃':'⦄',
+            '「':'」', '〈':'〉', '《':'》', '【':'】', '〔':'〕', '⦗':'⦘',
+            '『':'』', '〖':'〗', '〘':'〙',
+            '⟦':'⟧', '⟨':'⟩', '⟪':'⟫', '⟮':'⟯', '⟬':'⟭', '⌈':'⌉', '⌊':'⌋', '⦇':'⦈', '⦉':'⦊',
+            '❛':'❜', '❝':'❞', '❨':'❩', '❪':'❫', '❴':'❵', '❬':'❭', '❮':'❯', '❰':'❱', '❲':'❳',
+            '﴾':'﴿',
+            '〈':'〉', '⦑':'⦒', '⧼':'⧽',
+            '﹙':'﹚', '﹛':'﹜', '﹝':'﹞',
+            '⁽':'⁾', '₍':'₎',
+            '⦋':'⦌', '⦍':'⦎', '⦏':'⦐', '⁅':'⁆',
+            '⸢':'⸣', '⸤':'⸥',
+        }
+        result = []
 
-        for (start, end) in brackets:
-            start_count = msg['body'].count(start)
-            end_count = msg['body'].count(end)
+        for c in msg['body']:
+            char = brackets.get(c)
+            if len(result) > 0:
+                if c == result[-1]:
+                    result.pop()
+                    continue
+            if char is not None:
+                result.append(char)
 
-            if start_count > end_count:
-                result += end * (start_count - end_count)
 
         if len(result) > 0:
-            bot.send_message(result, msg['from'].bare)
+            result.reverse()
+            bot.send_message(''.join(result), msg['from'].bare)
 
     bot.hear('^(.*)$', counter)
