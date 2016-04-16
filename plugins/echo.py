@@ -9,3 +9,9 @@ def register(bot):
         bot.send_message(match.group(1))
 
     bot.respond('broadcast (.*)$', broadcast)
+
+    def shutdown(bot, msg, match):
+        print('restarting.... ish?')
+        bot.restart()
+
+    bot.respond('restart', shutdown)

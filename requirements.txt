@@ -1,2 +1,3 @@
 sleekxmpp
 python-dateutil
+psutil
