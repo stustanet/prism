@@ -1,9 +1,8 @@
 PRISM_JID = 'prism@jabber.id'
 PRISM_PASSWORD = ''
-PRISM_NICK =
+PRISM_NICK = 'prism'
 PRISM_ROOMS = [
     'example@jabber.de',
-    'prism@conference.jabber.stusta.mhn.de'
 ]
 
 PRISM_HOST = 'jabber.server'

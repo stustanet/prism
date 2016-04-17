@@ -1,24 +1,14 @@
 import re
 
 from os import listdir
-from os.path import isfile, join
+from os.path import isfile, join, dirname, realpath
 
 import importlib
 
 from prism import Prism
 
 
-
-
-
-
-
-
-
-
-
-if __name__ == "__main__":
-
+def main():
     import config
 
     prism = Prism(config.JID, config.PASSWORD, config.NICK)
@@ -29,12 +19,12 @@ if __name__ == "__main__":
 
     # loading plugins
 
-    plugin_path = './plugins'
-    python_matcher = re.compile('([^\.]+)\.py', re.I)
+    plugin_path = join(dirname(realpath(__file__)), 'plugins')
+    python_matcher = re.compile(r'([^\.]+)\.py', re.I)
     plugin_files = [python_matcher.match(f).group(1)
-                        for f in listdir(plugin_path)
-                            if isfile(join(plugin_path, f))
-                                and python_matcher.match(f)]
+                    for f in listdir(plugin_path)
+                    if isfile(join(plugin_path, f)) and
+                    python_matcher.match(f)]
 
     for plugin in plugin_files:
         module = importlib.import_module('plugins.%s' % plugin)
@@ -43,3 +33,7 @@ if __name__ == "__main__":
     # starting
 
     prism.start((config.HOST, config.PORT))
+
+
+if __name__ == "__main__":
+    main()
