@@ -5,8 +5,8 @@ import sleekxmpp
 from sleekxmpp.xmlstream.handler.callback import Callback
 from sleekxmpp.xmlstream.matcher.xpath import MatchXPath
 
-from listener import Listener
-from listener import RespondListener
+from .listener import Listener
+from .listener import RespondListener
 
 
 class Prism():

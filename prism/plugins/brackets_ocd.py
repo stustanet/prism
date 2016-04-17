@@ -1,4 +1,5 @@
-def register(bot):
+def register_to(bot):
+
     def counter(bot, msg, _):
         brackets = {
             '(': ')', '[': ']', '{': '}', '<': '>', '"': '"',

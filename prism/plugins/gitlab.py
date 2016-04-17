@@ -171,7 +171,7 @@ class GitLabBot():
         return None
 
 
-def register(bot):
+def register_to(bot):
 
     gitlabbot = GitLabBot(bot)
     gitlabbot.start()
