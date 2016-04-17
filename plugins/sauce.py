@@ -3,6 +3,7 @@ def register(bot):
         bot.send_message(
             "https://gitlab.stusta.mhn.de/stustanet/prism/", msg['from'].bare)
 
-    bot.respond('gimme-sauce', sauce)
-    bot.respond('invoke-gpl', sauce)
-    bot.respond('mitm', sauce)
+    bot.respond('gimme-sauce', sauce,
+                help='gimme-sauce: posts the url of the source')
+    bot.respond('invoke-gpl', sauce, help=None)
+    bot.respond('mitm', sauce, help=None)

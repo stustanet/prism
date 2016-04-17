@@ -33,4 +33,5 @@ def register(bot):
             result.reverse()
             bot.send_message(''.join(result), msg['from'].bare)
 
-    bot.hear('^(.*)$', counter)
+    bot.hear('^(.*)$', counter,
+             help='closes matching brackets')

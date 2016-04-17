@@ -38,7 +38,9 @@ class GitLabBot():
         for project in self.get_project_list():
             self.all_projects[project['id']] = project
 
-        bot.respond('list gitlab projects', self.list_projects)
+        bot.respond('list gitlab projects', self.list_projects,
+                    help='list gitlab projects: '
+                         'lists all projects of stustanet in gitlab')
 
     def start(self):
         Timer(10, self.check_for_changes).start()

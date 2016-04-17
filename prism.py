@@ -19,6 +19,8 @@ class Prism():
         self.rooms = []
         self.nicks = [nick]
         self.listener = []
+        self.commands_hear = []
+        self.commands_respond = []
 
         self._xmpp.add_event_handler('session_start', self._start)
         self._xmpp.add_event_handler('groupchat_message', self._muc_message)
@@ -26,6 +28,8 @@ class Prism():
         self._xmpp.register_plugin('xep_0030')  # Service Discovery
         self._xmpp.register_plugin('xep_0045')  # Multi-User Chat
         self._xmpp.register_plugin('xep_0199')  # XMPP Ping
+
+        self.respond('help', self.help_command, 'help: list of all commands')
 
     def get_nick(self):
         return self.nicks[-1]
@@ -42,11 +46,23 @@ class Prism():
     def stop(self):
         self._xmpp.disconnect(wait=True)
 
-    def hear(self, regex, func):
+    def hear(self, regex, func, help):
         self.listener.append(Listener(self, regex, func))
+        if isinstance(help, list):
+            self.commands_hear.extend(help)
+        elif isinstance(help, str):
+            self.commands_hear.append(help)
+        elif help is not None:
+            print('help for', regex, 'should be a string')
 
-    def respond(self, regex, func):
+    def respond(self, regex, func, help):
         self.listener.append(RespondListener(self, regex, func))
+        if isinstance(help, list):
+            self.commands_respond.extend(help)
+        elif isinstance(help, str):
+            self.commands_respond.append(help)
+        elif help is not None:
+            print('help for', regex, 'should be a string')
 
     def send_message(self, msg, room=None):
         rooms = [room] if room is not None else self.rooms
@@ -68,6 +84,15 @@ class Prism():
     def restart(self):
         self._xmpp.disconnect(wait=True)
         self._xmpp.abort()
+
+    def help_command(self, bot, msg, _):
+        help_message = 'Commands (usage: %s COMMAND):\n%s' \
+                       '\n\nOther stuff:\n%s' % (
+                         self.get_nick(),
+                         '\n'.join(self.commands_respond),
+                         '\n'.join(self.commands_hear))
+
+        self.send_message(help_message, msg['from'].bare)
 
     def _start(self, _):
         self._xmpp.get_roster()
