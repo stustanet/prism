@@ -1,0 +1,13 @@
+# prism bot configuration
+
+JID = 'prism@jabber.id'
+PASSWORD = ''
+NICK = 'prism'
+ROOMS = [
+    'example@jabber.de',
+]
+
+HOST = 'jabber.server'
+PORT = 5222
+
+GITLAB_PRIVATE_TOKEN = 'voll privat alda'

@@ -1,4 +1,5 @@
-def register(bot):
+def register_to(bot):
+
     def sauce(bot, msg, _):
         bot.send_message(
             "https://gitlab.stusta.mhn.de/stustanet/prism/", msg['from'].bare)
