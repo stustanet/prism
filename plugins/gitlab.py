@@ -70,6 +70,8 @@ class GitLabBot():
         bot.send_message(', '.join(list_of_projects), msg['from'].bare)
 
     def check_for_changes(self):
+        Timer(10, self.check_for_changes).start()
+
         projects = self.get_project_list()
 
         for project in projects:
@@ -100,8 +102,6 @@ class GitLabBot():
             if newer:
                 self.get_project_changes(self.all_projects[project_id])
                 self.all_projects[project_id] = project
-
-        Timer(10, self.check_for_changes).start()
 
     def get_project_changes(self, project):
         last_activity_at = dateutil.parser.parse(project['last_activity_at'])
