@@ -125,7 +125,7 @@ class GitLabBot():
 
     def format_event(self, event, project):
         author = event['author']['name']
-        name = project['name']
+        project_name = project['name']
         action = event['action_name']
         url = project['web_url']
 
@@ -135,11 +135,14 @@ class GitLabBot():
                 commits = ('%s commit' if commit_count ==
                            1 else '%s commits') % commit_count
 
-                text = ','.join([re.sub('[\r\n]+', ';', commit['message'])
+                text = ','.join([re.sub('[\r\n]+', ';',
+                                 commit['message'].strip())
                                  for commit in event['data']['commits']])
 
+                url = event['data']['commits'][-1]['url']
+
                 return '%s pushed %s to %s: %s (%s)' % (
-                    author, commits, name, text, url)
+                        author, commits, project_name, text, url)
 
         elif action in ['opened', 'closed']:
             event_type = 'stuff'
@@ -153,11 +156,16 @@ class GitLabBot():
                 url = self.ISSUE_URL % (url, event['target_id'])
 
             return '%s %s %s for %s: %s (%s)' % (
-                author, action, event_type, title, name, url)
+                    author, action, event_type, project_name, title, url)
 
         elif action == 'created':
-            return '%s created a new project %s (%s)' % (author, name, url)
+            return '%s created a new project %s (%s)' % (
+                    author, project_name, url)
+        elif action in ['commented on']:
+            # ignore action
+            return None
 
+        print('unhandeled event', action)
         print(event)
 
         return None
