@@ -11,3 +11,15 @@ def register_to(bot):
 
     bot.respond('broadcast (.*)$', broadcast,
                 help='broadcast TEXT: posts TEXT in all channels')
+
+    def all(bot, _, match):
+        for room in bot.get_joined_rooms():
+            roster = [nick for nick in bot.get_roster(room)
+                      if nick not in bot.nicks]
+
+            message = '%s: %s' % (', '.join(roster), match.group(1))
+
+            bot.send_message(message, room)
+
+    bot.respond('all (.*)$', all,
+                help='all TEXT: highlights all people and posts TEXT')

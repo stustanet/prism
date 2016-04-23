@@ -34,6 +34,12 @@ class Prism():
     def get_nick(self):
         return self.nicks[-1]
 
+    def get_joined_rooms(self):
+        return self.rooms
+
+    def get_roster(self, room):
+        return self._xmpp.plugin['xep_0045'].getRoster(room)
+
     def join_muc(self, muc):
         self.rooms.append(muc)
 
