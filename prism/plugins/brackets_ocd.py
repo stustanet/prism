@@ -20,9 +20,14 @@ def register_to(bot):
             '⦋': '⦌', '⦍': '⦎', '⦏': '⦐', '⁅': '⁆',
             '⸢': '⸣', '⸤': '⸥',
         }
+        smilies = [ ':(', ':\'(', ':-(', '<3', '+o(', ':\'-(', ';(', ';-(' ]
         result = []
 
-        for character in msg['body']:
+        message = msg['body']
+        for smiley in smilies:
+            message = message.replace(smiley, '')
+
+        for character in message:
             char = brackets.get(character)
             if len(result) > 0:
                 if character == result[-1]:

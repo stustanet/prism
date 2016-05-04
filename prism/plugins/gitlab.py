@@ -2,14 +2,18 @@ import re
 import json
 from threading import Timer
 from urllib.request import urlopen
+from urllib.error import URLError
 
 import dateutil.parser
 
 
 def get_rest_json(url):
-    response = urlopen(url)
-    body = response.read().decode('utf-8')
-    return (json.loads(body), response)
+    try:
+        response = urlopen(url)
+        body = response.read().decode('utf-8')
+        return (json.loads(body), response)
+    except URLError as exception:
+        return (None, None)
 
 
 def event_cmp(event):
@@ -21,9 +25,9 @@ def event_cmp(event):
 class GitLabBot():
 
     private_token = ''
-    PROJECTS_URL = 'https://gitlab.stusta.mhn.de/api/v3/projects/' \
+    PROJECTS_URL = 'https://gitlab.stusta.de/api/v3/projects/' \
                    '?private_token=%s&per_page=100&page=%s'
-    EVENTS_URL = 'https://gitlab.stusta.mhn.de/api/v3/projects/' \
+    EVENTS_URL = 'https://gitlab.stusta.de/api/v3/projects/' \
                  '%s/events?private_token=%s'
 
     ISSUE_URL = '%s/issues/%s'
@@ -52,6 +56,9 @@ class GitLabBot():
         while True:
             (projects_patch, response) = get_rest_json(
                 self.PROJECTS_URL % (self.private_token, page))
+
+            if projects_patch is None:
+                break
 
             projects.extend([project
                              for project in projects_patch
@@ -89,6 +96,8 @@ class GitLabBot():
                 self.all_projects[project_id] = project
                 (events, _) = get_rest_json(
                     self.EVENTS_URL % (project['id'], self.private_token))
+                if events is None:
+                    continue
                 events = sorted(events, key=event_cmp)
 
                 for event in events:
@@ -112,6 +121,8 @@ class GitLabBot():
 
         (events, _) = get_rest_json(self.EVENTS_URL %
                                     (project['id'], self.private_token))
+        if events is None:
+            return
         newest = [event for event in events if newest(event)]
         newest = sorted(newest, key=event_cmp)
 
