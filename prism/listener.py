@@ -12,7 +12,9 @@ class Listener:
         match = self.regex.match(msg['body'])
 
         if match is not None:
-            self.callback(self.bot, msg, match)
+            return self.callback(self.bot, msg, match)
+
+        return False
 
 
 class RespondListener(Listener):
@@ -30,6 +32,7 @@ class RespondListener(Listener):
         new_regex = re.compile(new_regex, flags)
 
         match = new_regex.match(msg['body'])
-
         if match is not None:
-            self.callback(self.bot, msg, match)
+            return self.callback(self.bot, msg, match)
+
+        return False

@@ -1,4 +1,5 @@
 import traceback
+import copy
 
 import sleekxmpp
 
@@ -24,6 +25,7 @@ class Prism():
 
         self._xmpp.add_event_handler('session_start', self._start)
         self._xmpp.add_event_handler('groupchat_message', self._muc_message)
+        self._xmpp.add_event_handler('message', self._message)
 
         self._xmpp.register_plugin('xep_0030')  # Service Discovery
         self._xmpp.register_plugin('xep_0045')  # Multi-User Chat
@@ -44,6 +46,8 @@ class Prism():
         self.rooms.append(muc)
 
     def start(self, endpoint=None):
+        self.respond('.*$', self.fallback_command, None)
+
         if self._xmpp.connect(endpoint):
             self._xmpp.process(block=True)
         else:
@@ -70,13 +74,18 @@ class Prism():
         elif help_text is not None:
             print('help for', regex, 'should be a string')
 
-    def send_message(self, msg, room=None):
-        rooms = [room] if room is not None else self.rooms
+    def send_message(self, msg, mto=None):
+        recipients = mto
+        if recipients is None:
+            recipients = self.rooms
+        elif not isinstance(recipients, list):
+            recipients = [recipients]
 
-        for room in rooms:
-            self._xmpp.send_message(mto=room,
+        for recipient in recipients:
+            mtype = 'groupchat' if recipient in self.rooms else 'chat'
+            self._xmpp.send_message(mto=recipient,
                                     mbody=msg,
-                                    mtype='groupchat')
+                                    mtype=mtype)
 
     def change_subject(self, subject, room=None):
         rooms = [room] if room is not None else self.rooms
@@ -91,14 +100,28 @@ class Prism():
         self._xmpp.disconnect(wait=True)
         self._xmpp.abort()
 
-    def help_command(self, bot, msg, _):
+    def help_command(self, *args):
+        _, msg, _ = args
+
+        commands = sorted(self.commands_respond)
+
         help_message = 'Commands (usage: %s COMMAND):\n%s' \
                        '\n\nOther stuff:\n%s' % (
                            self.get_nick(),
-                           '\n'.join(self.commands_respond),
+                           '\n'.join(commands),
                            '\n'.join(self.commands_hear))
 
-        bot.send_message(help_message, msg['from'].bare)
+        msg.reply(help_message).send()
+        return True
+
+    @classmethod
+    def fallback_command(cls, *args):
+        _, msg, _ = args
+
+        mfrom = msg['from'].resource
+        msg.reply('sorry %s, '
+                  'but i don\'t know that command :\'(\n' % mfrom).send()
+        return True
 
     def _start(self, _):
         self._xmpp.get_roster()
@@ -126,11 +149,20 @@ class Prism():
             self._xmpp.plugin['xep_0045'].leaveMUC(room,
                                                    self.get_nick())
 
+    def _message(self, msg):
+        if msg['type'] != 'chat':
+            return
+
+        msg['body'] = '%s %s' % (self.get_nick(), msg['body'])
+        self._muc_message(msg)
+
     def _muc_message(self, msg):
         try:
             if msg['mucnick'] != self.get_nick():
                 for listener in self.listener:
-                    listener.call(msg)
+                    copied_msg = copy.copy(msg)
+                    if listener.call(copied_msg):
+                        break
 
         except Exception as exception:
             print(exception)

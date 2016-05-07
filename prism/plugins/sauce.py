@@ -1,8 +1,10 @@
 def register_to(bot):
 
-    def sauce(bot, msg, _):
-        bot.send_message(
-            "https://gitlab.stusta.mhn.de/stustanet/prism/", msg['from'].bare)
+    def sauce(*args):
+        _, msg, _ = args
+        msg.reply('https://gitlab.stusta.mhn.de/stustanet/prism/').send()
+
+        return True
 
     bot.respond('gimme-sauce', sauce,
                 help_text='gimme-sauce: posts the url of the source')

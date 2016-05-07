@@ -43,8 +43,8 @@ class GitLabBot():
             self.all_projects[project['id']] = project
 
         bot.respond('list gitlab projects', self.list_projects,
-                    help='list gitlab projects: '
-                         'lists all projects of stustanet in gitlab')
+                    help_text='list gitlab projects: '
+                              'lists all projects of stustanet in gitlab')
 
     def start(self):
         Timer(10, self.check_for_changes).start()
@@ -71,10 +71,13 @@ class GitLabBot():
 
         return projects
 
-    def list_projects(self, bot, msg, _):
+    def list_projects(self, *args):
+        _, msg, _ = args
         list_of_projects = [self.all_projects[id]['name']
                             for id in self.all_projects]
-        bot.send_message(', '.join(list_of_projects), msg['from'].bare)
+        msg.reply(', '.join(list_of_projects)).send()
+
+        return True
 
     def check_for_changes(self):
         Timer(10, self.check_for_changes).start()

@@ -1,6 +1,7 @@
 def register_to(bot):
 
-    def counter(bot, msg, _):
+    def counter(*args):
+        _, msg, _ = args
         brackets = {
             '(': ')', '[': ']', '{': '}', '<': '>',
             '„': '“',
@@ -39,7 +40,9 @@ def register_to(bot):
 
         if len(result) > 0:
             result.reverse()
-            bot.send_message(''.join(result), msg['from'].bare)
+            msg.reply(''.join(result)).send()
+
+        return False
 
     bot.hear('^(.*)$', counter,
              help_text='closes matching brackets')
