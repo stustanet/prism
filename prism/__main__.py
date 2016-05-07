@@ -1,8 +1,6 @@
 import argparse
 import importlib
 
-from os import listdir
-
 from pathlib import Path
 
 from .prism import Prism

@@ -20,8 +20,8 @@ def register_to(bot):
             '⦋': '⦌', '⦍': '⦎', '⦏': '⦐', '⁅': '⁆',
             '⸢': '⸣', '⸤': '⸥',
         }
-        smileys = [ ':(', ':\'(', ':-(', '<3', '+o(', ':\'-(', ';(', ';-(',
-                    '>.<', ':<', ':-<', '(:' ]
+        smileys = [':(', ':\'(', ':-(', '<3', '+o(', ':\'-(', ';(', ';-(',
+                   '>.<', ':<', ':-<', '(:']
         result = []
 
         message = msg['body']
@@ -42,4 +42,4 @@ def register_to(bot):
             bot.send_message(''.join(result), msg['from'].bare)
 
     bot.hear('^(.*)$', counter,
-             help='closes matching brackets')
+             help_text='closes matching brackets')

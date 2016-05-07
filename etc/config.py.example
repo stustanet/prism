@@ -10,4 +10,6 @@ ROOMS = [
 HOST = 'jabber.server'
 PORT = 5222
 
+# plugins
+
 GITLAB_PRIVATE_TOKEN = 'voll privat alda'

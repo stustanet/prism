@@ -12,7 +12,7 @@ def get_rest_json(url):
         response = urlopen(url)
         body = response.read().decode('utf-8')
         return (json.loads(body), response)
-    except URLError as exception:
+    except URLError as _:
         return (None, None)
 
 
@@ -147,13 +147,13 @@ class GitLabBot():
                            1 else '%s commits') % commit_count
 
                 text = ','.join([re.sub('[\r\n]+', ';',
-                                 commit['message'].strip())
+                                        commit['message'].strip())
                                  for commit in event['data']['commits']])
 
                 url = event['data']['commits'][-1]['url']
 
                 return '%s pushed %s to %s: %s (%s)' % (
-                        author, commits, project_name, text, url)
+                    author, commits, project_name, text, url)
 
         elif action in ['opened', 'closed']:
             event_type = 'stuff'
@@ -167,11 +167,11 @@ class GitLabBot():
                 url = self.ISSUE_URL % (url, event['target_id'])
 
             return '%s %s %s for %s: %s (%s)' % (
-                    author, action, event_type, project_name, title, url)
+                author, action, event_type, project_name, title, url)
 
         elif action == 'created':
             return '%s created a new project %s (%s)' % (
-                    author, project_name, url)
+                author, project_name, url)
         elif action in ['commented on']:
             # ignore action
             return None

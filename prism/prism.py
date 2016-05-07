@@ -52,22 +52,22 @@ class Prism():
     def stop(self):
         self._xmpp.disconnect(wait=True)
 
-    def hear(self, regex, func, help):
+    def hear(self, regex, func, help_text):
         self.listener.append(Listener(self, regex, func))
-        if isinstance(help, list):
-            self.commands_hear.extend(help)
-        elif isinstance(help, str):
-            self.commands_hear.append(help)
-        elif help is not None:
+        if isinstance(help_text, list):
+            self.commands_hear.extend(help_text)
+        elif isinstance(help_text, str):
+            self.commands_hear.append(help_text)
+        elif help_text is not None:
             print('help for', regex, 'should be a string')
 
-    def respond(self, regex, func, help):
+    def respond(self, regex, func, help_text):
         self.listener.append(RespondListener(self, regex, func))
-        if isinstance(help, list):
-            self.commands_respond.extend(help)
-        elif isinstance(help, str):
-            self.commands_respond.append(help)
-        elif help is not None:
+        if isinstance(help_text, list):
+            self.commands_respond.extend(help_text)
+        elif isinstance(help_text, str):
+            self.commands_respond.append(help_text)
+        elif help_text is not None:
             print('help for', regex, 'should be a string')
 
     def send_message(self, msg, room=None):
@@ -94,11 +94,11 @@ class Prism():
     def help_command(self, bot, msg, _):
         help_message = 'Commands (usage: %s COMMAND):\n%s' \
                        '\n\nOther stuff:\n%s' % (
-                         self.get_nick(),
-                         '\n'.join(self.commands_respond),
-                         '\n'.join(self.commands_hear))
+                           self.get_nick(),
+                           '\n'.join(self.commands_respond),
+                           '\n'.join(self.commands_hear))
 
-        self.send_message(help_message, msg['from'].bare)
+        bot.send_message(help_message, msg['from'].bare)
 
     def _start(self, _):
         self._xmpp.get_roster()
