@@ -20,11 +20,12 @@ def register_to(bot):
             '⦋': '⦌', '⦍': '⦎', '⦏': '⦐', '⁅': '⁆',
             '⸢': '⸣', '⸤': '⸥',
         }
-        smilies = [ ':(', ':\'(', ':-(', '<3', '+o(', ':\'-(', ';(', ';-(' ]
+        smileys = [ ':(', ':\'(', ':-(', '<3', '+o(', ':\'-(', ';(', ';-(',
+                    '>.<', ':<', ':-<', '(:' ]
         result = []
 
         message = msg['body']
-        for smiley in smilies:
+        for smiley in smileys:
             message = message.replace(smiley, '')
 
         for character in message:
