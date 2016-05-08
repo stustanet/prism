@@ -1,3 +1,5 @@
+import socket
+
 def register_to(bot):
 
     def respond_echo(_, msg, match):
@@ -9,10 +11,22 @@ def register_to(bot):
     bot.respond('echo (.*)$', respond_echo,
                 help_text='echo TEXT: posts TEXT')
 
+    # pylint: disable=W0703
     def respond_broadcast(bot, msg, match):
         message = '%s (by %s)' % (match.group(1), msg['from'])
         mto = None if msg['type'] == 'groupchat' else bot.rooms + [str(msg['from'])]
         bot.send_message(message, mto)
+
+        if bot.config.KNECHTQT is not None:
+            kqt_message = '%s<br><span style="font-size: 24px">(by %s)</span>' % (
+                match.group(1), msg['from'])
+            try:
+                with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+                    sock.connect(bot.config.KNECHTQT)
+                    sock.send((kqt_message.replace('\n', '<br>') + '\n').encode('utf8'))
+                    sock.close()
+            except Exception as exc:
+                print('socket error!', exc)
 
         return True
 

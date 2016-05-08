@@ -114,11 +114,12 @@ class Prism():
         msg.reply(help_message).send()
         return True
 
-    @classmethod
-    def fallback_command(cls, *args):
+    def fallback_command(self, *args):
         _, msg, _ = args
 
-        mfrom = msg['from'].resource
+        print(self.get_roster(self.get_joined_rooms()[0]))
+
+        mfrom = msg['from'].resource if msg['from'].bare in self.rooms else msg['from'].user
         msg.reply('sorry %s, '
                   'but i don\'t know that command :\'(\n' % mfrom).send()
         return True
